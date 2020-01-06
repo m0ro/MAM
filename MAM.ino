@@ -67,25 +67,33 @@ void loop()
     // Normal 1:1 pixel scale
     display.setTextSize(1);      
     display.setTextColor(SSD1306_WHITE);
-    // all in (ug/m3)
-    sprintf(output, "PM1.0 : %2d / %2d\nPM2.5 : %2d / %2d\nPM10  : %2d / %2d",
-      dustsensor.getPM_1_0(), dustsensor.getPM_1_0_atmos(),
-      dustsensor.getPM_2_5(), dustsensor.getPM_2_5_atmos(),
-      dustsensor.getPM_10_0(), dustsensor.getPM_10_0_atmos());
-    display.setCursor(0, 0);
-    display.println(output);  
     
+    // dust sensor
+    // all in (ug/m3)
+    sprintf(output, "PM1.0 : %2d ug/m3\nPM2.5 : %2d ug/m3\nPM10  : %2d ug/m3",
+      dustsensor.getPM_1_0_atmos(),
+      dustsensor.getPM_2_5_atmos(),
+      dustsensor.getPM_10_0_atmos());
+    display.setCursor(0, 0);
+    display.println(output);
+
+    // CO2 sensor
     double adjustedCO2 = CO2sensor.getCO2Raw();
     int8_t CO2temp = CO2sensor.getTemperature();  
-    
     // Exponential equation for Raw & CO2 relationship (see docs)
     adjustedCO2 = 6.60435861e+15 * exp(-8.78661228e-04 * adjustedCO2);
-    sprintf(output, "CO2: %.2f ppm, %2d'C", adjustedCO2, CO2temp);
+    sprintf(output, "CO2: %d ppm\n %2dC", adjustedCO2, CO2temp);
     display.println(output);
+    
     display.display();
     
     if (SERIALOUT) {
-//       indicates the number of particles with diameter beyond *um in 0.1 L of air. 
+      sprintf(output, "PM1.0 : %2d / %2d\nPM2.5 : %2d / %2d\nPM10  : %2d / %2d",
+          dustsensor.getPM_1_0(), dustsensor.getPM_1_0_atmos(),
+          dustsensor.getPM_2_5(), dustsensor.getPM_2_5_atmos(),
+          dustsensor.getPM_10_0(), dustsensor.getPM_10_0_atmos());
+      Serial.println(output);
+      // indicates the number of particles with diameter beyond *um in 0.1 L of air. 
       sprintf(output, "%d %d %d %d %d %d",
           dustsensor.getRawGreaterThan_0_3(),
           dustsensor.getRawGreaterThan_0_5(),
@@ -93,6 +101,8 @@ void loop()
           dustsensor.getRawGreaterThan_2_5(),
           dustsensor.getRawGreaterThan_5_0(),
           dustsensor.getRawGreaterThan_10_0());
+      Serial.println(output);
+      sprintf(output, "CO2: %d ppm\n %2dC", adjustedCO2, CO2temp);
       Serial.println(output);
     }
   }
