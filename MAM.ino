@@ -78,7 +78,7 @@ void loop()
     double adjustedCO2 = CO2sensor.getCO2Raw();
     int8_t CO2temp = CO2sensor.getTemperature();  
     
-    // Exponential equation for Raw & CO2 relationship
+    // Exponential equation for Raw & CO2 relationship (see docs)
     adjustedCO2 = 6.60435861e+15 * exp(-8.78661228e-04 * adjustedCO2);
     sprintf(output, "CO2: %.2f ppm, %2d'C", adjustedCO2, CO2temp);
     display.println(output);
@@ -86,7 +86,7 @@ void loop()
     
     if (SERIALOUT) {
 //       indicates the number of particles with diameter beyond *um in 0.1 L of air. 
-      sprintf(output, "%d %d %d\%d %d %d",
+      sprintf(output, "%d %d %d %d %d %d",
           dustsensor.getRawGreaterThan_0_3(),
           dustsensor.getRawGreaterThan_0_5(),
           dustsensor.getRawGreaterThan_1_0(),
