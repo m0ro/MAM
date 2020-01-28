@@ -6,6 +6,7 @@ m0ro
 // MCU: ESPRESSIF ESP32-WROOM-32D
 // particulate sensor: PMS7003 
 // CO2 sensor: MH-Z19B
+// Humidity/Temperature sensor: HTU21
 // Display: SPI oled display 128x64
 
 #include <Arduino.h>
@@ -15,8 +16,9 @@ m0ro
 #include "Plantower_PMS7003.h"
 // code from https://github.com/WifWaf/MH-Z19
 #include "MHZ19.h"
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include "Adafruit_GFX.h"
+#include "Adafruit_SSD1306.h"
+#include "Adafruit_HTU21DF.h"
 
 #define SERIALOUT true
 #define BAUDRATE 9600
@@ -34,6 +36,7 @@ char output[256];
 Plantower_PMS7003 dustsensor = Plantower_PMS7003();
 MHZ19 CO2sensor;                                             
 HardwareSerial CO2serial(0);
+Adafruit_HTU21DF htu = Adafruit_HTU21DF();
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup()
@@ -47,16 +50,19 @@ void setup()
   CO2serial.begin(BAUDRATE, SERIAL_8N1, CO2_RX_PIN, CO2_TX_PIN); // ESP32 example
   CO2sensor.begin(CO2serial); 
   
+  if (!htu.begin()) {
+    Serial.println("HTU21 allocation failed");
+    while (1);
+  }
   Wire.begin(SCREEN_SDA, SCREEN_SCL);
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C, false, false)) {
     Serial.println(F("SSD1306 allocation failed"));
   }
-  // Show initial display buffer contents on the screen --
-  // the library initializes this with an Adafruit splash screen.
-  display.display();
-  delay(2000);
-  // Clear the buffer
+  // Clear the buffer1
   display.clearDisplay();
+  display.display();
+  // wait a little to initialize stuff
+  delay(2000);
 }
  
 void loop()
@@ -70,11 +76,17 @@ void loop()
     
     // dust sensor
     // all in (ug/m3)
-    sprintf(output, "PM1.0 : %2d ug/m3\nPM2.5 : %2d ug/m3\nPM10  : %2d ug/m3",
+    sprintf(output, "PM1.0: %2d ug/m3\nPM2.5: %2d ug/m3\nPM10 : %2d ug/m3",
       dustsensor.getPM_1_0_atmos(),
       dustsensor.getPM_2_5_atmos(),
       dustsensor.getPM_10_0_atmos());
     display.setCursor(0, 0);
+    display.println(output);
+    
+    // humidity / temperature sensor
+    float htu_temp = htu.readTemperature();
+    float htu_hum = htu.readHumidity();
+    sprintf(output, "Hum. :  %.1f %c\nTemp.:  %.1f %cC", htu_hum, (char)37, htu_temp, (char)247);
     display.println(output);
 
     // CO2 sensor
@@ -82,7 +94,7 @@ void loop()
     int8_t CO2temp = CO2sensor.getTemperature();  
     // Exponential equation for Raw & CO2 relationship (see docs)
     adjustedCO2 = 6.60435861e+15 * exp(-8.78661228e-04 * adjustedCO2);
-    sprintf(output, "CO2: %d ppm\n %2dC", adjustedCO2, CO2temp);
+    sprintf(output, "CO2  :  %.0f ppm", adjustedCO2);
     display.println(output);
     
     display.display();
@@ -102,7 +114,7 @@ void loop()
           dustsensor.getRawGreaterThan_5_0(),
           dustsensor.getRawGreaterThan_10_0());
       Serial.println(output);
-      sprintf(output, "CO2: %d ppm\n %2dC", adjustedCO2, CO2temp);
+      sprintf(output, "CO2: %.0f ppm %dC", adjustedCO2, CO2temp);
       Serial.println(output);
     }
   }
