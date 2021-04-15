@@ -11,16 +11,16 @@ date, pm1 [ug/m3], pm2.5 [ug/m3], pm10 [ug/m3], hum [%], temp ['C] , CO2 [ppm]
 
 
 TBD:
-- some kind control
-- BT data dump, compatible with github.com/HabitatMap
-- clean code
+- some kind control (a few buttons?)
+- data dump through bluetooth, compatible with github.com/HabitatMap
+- clean code, always
 
 External code used:
 - https://github.com/WifWaf/MH-Z19
 - https://github.com/jmstriegel/Plantower_PMS7003
 - https://forum.arduino.cc/index.php?topic=650384.0
 
-Libraries from Adafroid for OLED screen
+Libraries used (from Adafroid)
 
 - MCU: ESPRESSIF **ESP32-WROOM-32D**
 - particulate sensor: **PMS7003** 
@@ -53,7 +53,7 @@ SD card pinout:
 - SCK -> GPIO18
 - MISO -> GPIO19
 
-Display pinout:
+OLED Display pinout:
 - VCC -> 3.3V
 - GND -> GND
 - SCL -> GPIO22
