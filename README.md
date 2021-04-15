@@ -5,9 +5,10 @@ Simple code to test PM and CO2 sensors.
 
 Read the wifi credentials from wifi.txt: first row ssid, second password.
 
-Dump to pm_log.txt:
+Dump to pm_log.csv :
 
-date, pm1 [ug/m3], pm2.5 [ug/m3], pm10 [ug/m3], hum [%], temp ['C] , CO2 [ppm] 
+| date | pm1 [ug/m3] | pm2.5 [ug/m3] | pm10 [ug/m3] | hum [%] | temp ['C] | CO2 [ppm] |
+
 
 
 TBD:
@@ -20,7 +21,7 @@ External code used:
 - https://github.com/jmstriegel/Plantower_PMS7003
 - https://forum.arduino.cc/index.php?topic=650384.0
 
-Libraries used (from Adafroid)
+HTU21 and OLED dotscreen display uses Adafruit libraries (easy intallable from Arduino environment)
 
 - MCU: ESPRESSIF **ESP32-WROOM-32D**
 - particulate sensor: **PMS7003** 
