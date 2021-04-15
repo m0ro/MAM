@@ -67,11 +67,13 @@ char password[50];
 #define CO2_RX_PIN 15                                 
 #define CO2_TX_PIN 4
 
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 #define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
+#define SCREEN_HEIGHT 32
 #define SCREEN_SDA 22
 #define SCREEN_SCL 21
 #define OLED_RESET -1 
+
 #define WIFI true
 
 char output[256];
@@ -218,15 +220,15 @@ void dump_to_sd(){
                 + String(hum) + "," 
                 + String(temp) + "," 
                 + String(CO2) + "\r\n";
-    appendFile(SD, "/pm_log.txt", dataMessage.c_str());
+    appendFile(SD, "/pm_log.csv", dataMessage.c_str());
 }
 
 void setup(){
   // serial commumication through USB
   Serial.begin(BAUDRATE);
   Serial.println('Serial active...');
-//  Wire.begin(SCREEN_SDA, SCREEN_SCL);
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C, false, false)) {
+  Wire.begin(SCREEN_SDA, SCREEN_SCL);
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS, false, false)) {
     Serial.println("SSD1306 allocation failed");
   }
   else {
@@ -261,11 +263,11 @@ void setup(){
     uint64_t cardSize = SD.cardSize() / (1024 * 1024);
     Serial.printf("SD Size: %lluMB\n", cardSize);
     // verify if log file exist, if not, create it
-    File file = SD.open("/pm_log.txt");
+    File file = SD.open("/pm_log.csv");
     if(!file) {
       Serial.println("pm_log doens't exist");
       Serial.println("Creating pm_log...");
-      writeFile(SD, "/pm_log.txt", "date,pm1,pm25,pm10,hum,temp,CO2 \r\n");
+      writeFile(SD, "/pm_log.csv", "date,pm1,pm25,pm10,hum,temp,CO2 \r\n");
     }
     else{
       Serial.println("pm_log already exists");  
