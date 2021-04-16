@@ -224,6 +224,7 @@ void dump_to_sd(){
 }
 
 void setup(){
+  pinMode(2, OUTPUT);
   // serial commumication through USB
   Serial.begin(BAUDRATE);
   Serial.println('Serial active...');
@@ -329,7 +330,7 @@ void loop(){
   //    display.ssd1306_command(SSD1306_DISPLAYOFF);
 
   // it's really needed to activate only if there is new data from dustsensor?
-  if (dustsensor.hasNewData()){
+//  if (dustsensor.hasNewData()){
     // collect data
     // dust sensor, all in (ug/m3)
     pm1 = dustsensor.getPM_1_0_atmos();
@@ -353,6 +354,14 @@ void loop(){
     print_to_screen();
     dump_to_sd();
 
+    digitalWrite(2, HIGH);
+    delay(100);
+    digitalWrite(2, LOW);
+    delay(100);
+    digitalWrite(2, HIGH);
+    delay(100);
+    digitalWrite(2, LOW);
+    
     delay(5*1000);
-  }
+//  }
 }
