@@ -69,10 +69,12 @@ char password[50];
 
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 #define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 32
-#define SCREEN_SDA 22
-#define SCREEN_SCL 21
+#define SCREEN_HEIGHT 64
+#define SCREEN_SDA 21
+#define SCREEN_SCL 22
 #define OLED_RESET -1 
+// screen enable allows to set OLED visible or not
+#define SCREEN_ENABLE 13
 
 #define WIFI true
 
@@ -225,11 +227,20 @@ void dump_to_sd(){
 
 void setup(){
   pinMode(2, OUTPUT);
+  pinMode(SCREEN_ENABLE,INPUT_PULLUP);
   // serial commumication through USB
   Serial.begin(BAUDRATE);
   Serial.println('Serial active...');
   Wire.begin(SCREEN_SDA, SCREEN_SCL);
-  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS, false, false)) {
+
+  if (!htu.begin()) {
+    Serial.println("HTU21 allocation failed");
+  }
+  else{
+    Serial.println("HTU21 allocation succeed");
+  }
+  
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println("SSD1306 allocation failed");
   }
   else {
@@ -245,20 +256,11 @@ void setup(){
     display.println("SSD1306 allocation succeed");
     display.display();
   }
-  if (!htu.begin()) {
-    Serial.println("HTU21 allocation failed");
-  }
-  else{
-    Serial.println("HTU21 allocation succeed");
-  }
+
   // sd card initialization
-//  SPIClass sd_spi(VSPI);
-//  sd_spi.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   SD.begin(SD_CS); 
-//  if (!SD.begin(SD_CS, sd_spi)){
   if (!SD.begin(SD_CS)){
     Serial.println("Card Mount Failed");
-//    return;
   }
   else{
     uint64_t cardSize = SD.cardSize() / (1024 * 1024);
@@ -326,16 +328,19 @@ void loop(){
   dustsensor.updateFrame();
   // could be interesting to set the display on only between certain times...
   // or use a free pin for a switch...or read from web, or from SD
-  display.ssd1306_command(SSD1306_DISPLAYON);
-  //    display.ssd1306_command(SSD1306_DISPLAYOFF);
-
-  // it's really needed to activate only if there is new data from dustsensor?
-//  if (dustsensor.hasNewData()){
-    // collect data
-    // dust sensor, all in (ug/m3)
-    pm1 = dustsensor.getPM_1_0_atmos();
-    pm25 = dustsensor.getPM_2_5_atmos();
-    pm10 = dustsensor.getPM_10_0_atmos();
+  if (digitalRead(SCREEN_ENABLE)) {
+    display.ssd1306_command(SSD1306_DISPLAYON);
+  }
+  else {
+    display.ssd1306_command(SSD1306_DISPLAYOFF);
+  }
+    if (dustsensor.hasNewData()){
+      // collect data
+      // dust sensor, all in (ug/m3)
+      pm1 = dustsensor.getPM_1_0_atmos();
+      pm25 = dustsensor.getPM_2_5_atmos();
+      pm10 = dustsensor.getPM_10_0_atmos();
+    }
     // humidity / temperature sensor
     temp = htu.readTemperature();
     hum = htu.readHumidity();
@@ -354,14 +359,14 @@ void loop(){
     print_to_screen();
     dump_to_sd();
 
-    digitalWrite(2, HIGH);
-    delay(100);
-    digitalWrite(2, LOW);
-    delay(100);
-    digitalWrite(2, HIGH);
-    delay(100);
-    digitalWrite(2, LOW);
+// // flash the internal led at every mearurement round, for debug purposes
+//    digitalWrite(2, HIGH);
+//    delay(1);
+//    digitalWrite(2, LOW);
+//    delay(100);
+//    digitalWrite(2, HIGH);
+//    delay(1);
+//    digitalWrite(2, LOW);
     
     delay(5*1000);
-//  }
 }
