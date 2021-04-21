@@ -1,14 +1,21 @@
 # MAM
 MAM Air Monitor - very dirty air monitor with ESP32.
 
-Simple code to test PM and CO2 sensors.
+Simple code to test PM and CO2 sensors, based on:
+
+- MCU: ESPRESSIF **ESP32-WROOM-32D** 
+- Temperature and Humidity: **HTU21**
+- particulate sensor: **PMS7003** 
+- CO2 sensor: **MH-Z19B**
+- Display: SPI oled display 128x64
+
 
 Read the wifi credentials from wifi.txt: first row ssid, second password.
 
 Dump to pm_log.csv :
 
 | date | pm1 [ug/m3] | pm2.5 [ug/m3] | pm10 [ug/m3] | hum [%] | temp ['C] | CO2 [ppm] |
-
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 
 
 TBD:
@@ -22,11 +29,6 @@ External code used:
 - https://forum.arduino.cc/index.php?topic=650384.0
 
 HTU21 and OLED dotscreen display uses Adafruit libraries (easy intallable from Arduino environment)
-
-- MCU: ESPRESSIF **ESP32-WROOM-32D**
-- particulate sensor: **PMS7003** 
-- CO2 sensor: **MH-Z19B**
-- Display: SPI oled display 128x64
 
 PMS7003 pinout:
 - PIN1 -> 5V
